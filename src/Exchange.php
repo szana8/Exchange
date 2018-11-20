@@ -84,7 +84,6 @@ class Exchange
     public function get()
     {
         $response = $this->getCurrency();
-
         $this->setBaseCurrency($response->getBaseCurrency());
 
         return [
@@ -123,13 +122,10 @@ class Exchange
         $method = substr($currency, 4);
 
         if ($parameters[0]) {
-            $this->from($method, $parameters[0]);
-        }
-        else {
-            $this->from($method);
+            return $this->from($method, $parameters[0]);
         }
 
-        return $this;
+        return $this->from($method);
     }
 
     /**
@@ -141,9 +137,8 @@ class Exchange
      */
     protected function dynamicTo($currency, $parameters)
     {
-        $method = substr($currency, 2);
+        $this->to($substr($currency, 2));
 
-        $this->to($method);
         return $this;
     }
 
