@@ -4,5 +4,11 @@ namespace szana8\Exchange\Drivers;
 
 interface ProviderInterface
 {
-    public function getCurrency($from = null, $to = null, $amount = null);
+    public function getRawResponse();
+
+    public function getBaseCurrency();
+
+    public function getRateFrom();
+
+    public function getRateTo();
 }

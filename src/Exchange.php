@@ -83,19 +83,32 @@ class Exchange
      */
     public function get()
     {
-        $currency = $this->getCurrency();
+        $response = $this->getCurrency();
 
-        $this->base = $currency['base'];
-
-        $calculate = (1 / $currency['rates'][$this->currencyFrom]) * $currency['rates'][$this->currencyTo] * $this->amount;
+        $this->setBaseCurrency($response->getBaseCurrency());
 
         return [
             'amount' => $this->amount,
             'from' => $this->currencyFrom,
             'to' => $this->currencyTo,
-            'converted' => $calculate
+            'converted' => $this->calculateAmount($response)
         ];
+    }
 
+    protected function setBaseCurrency($baseCurrency)
+    {
+        $this->base = $baseCurrency;
+    }
+
+    /**
+     * Calculate the amount based on the currencies.
+     *
+     * @param [type] $rates
+     * @return void
+     */
+    protected function calculateAmount($response)
+    {
+        return (1 / $response->getRateFrom()) * $response->getRateTo() * $this->amount;
     }
 
     /**
@@ -142,11 +155,8 @@ class Exchange
     protected function getCurrency()
     {
         $driver = config('exchange.default.driver');
-
         $className = '\\szana8\\Exchange\\Drivers\\' . $driver;
 
-        $provider = new $className();
-
-        return $provider->getCurrency();
+        return new $className($this->currencyFrom, $this->currencyTo);
     }
 }
