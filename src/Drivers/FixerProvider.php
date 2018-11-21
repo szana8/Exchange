@@ -2,27 +2,20 @@
 
 namespace szana8\Exchange\Drivers;
 
-class FixerProvider implements ProviderInterface
+class FixerProvider extends AbstractProvider implements ProviderInterface
 {
     /**
      * Response from the Fixer API.
      */
     protected $apiResult;
 
-    /**
-     * Currency name what you want to convert from.
-     */
-    protected $from;
+    protected function callApi()
+    {
+        $client = new \GuzzleHttp\Client();
+        $response = $client->request('GET', 'http://data.fixer.io/api/latest?access_key=' . config('exchange.drivers.fixer.api_key') . '&format=1');
 
-    /**
-     * Currency name what you want to convert to.
-     */
-    protected $to;
-
-    /**
-     * Amount what you convert.
-     */
-    protected $amount;
+        $this->apiResult = json_decode($response->getBody(), true);
+    }
 
     /**
      * Create a API request.
@@ -31,16 +24,11 @@ class FixerProvider implements ProviderInterface
      * @param [type] $to
      * @param [type] $amount
      */
-    public function __construct($from = null, $to = null, $amount = null)
+    public function getResponse()
     {
-        $this->to = $to;
-        $this->from = $from;
-        $this->amount = $amount;
+        $this->callApi();
 
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request('GET', 'http://data.fixer.io/api/latest?access_key=' . config('exchange.drivers.fixer.api_key') . '&format=1');
-
-        $this->apiResult = json_decode($response->getBody(), true);
+        return $this->getRate();
     }
 
     /**
@@ -81,7 +69,7 @@ class FixerProvider implements ProviderInterface
      */
     protected function getRateFrom()
     {
-        return $this->apiResult['rates'][$this->from];
+        return $this->apiResult['rates'][$this->getFrom()];
     }
 
     /**
@@ -92,6 +80,6 @@ class FixerProvider implements ProviderInterface
      */
     protected function getRateTo()
     {
-        return $this->apiResult['rates'][$this->to];
+        return $this->apiResult['rates'][$this->getTo()];
     }
 }
