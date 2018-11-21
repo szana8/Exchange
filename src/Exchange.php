@@ -37,11 +37,11 @@ class Exchange
     public function __call($method, $arguments)
     {
         if (Str::startsWith($method, 'from')) {
-            return $this->dynamicFrom($method, $arguments);
+            return $this->dynamicFrom($method);
         }
 
         if (Str::startsWith($method, 'to')) {
-            return $this->dynamicTo($method, $arguments);
+            return $this->dynamicTo($method);
         }
 
 
@@ -55,10 +55,9 @@ class Exchange
      * @param integer $amount
      * @return void
      */
-    public function from($currency, $amount = 1)
+    public function from($currency)
     {
         $this->currencyFrom = strtoupper($currency);
-        $this->amount = $amount;
 
         return $this;
     }
@@ -77,6 +76,19 @@ class Exchange
     }
 
     /**
+     * Set the amount
+     *
+     * @param integer $amount
+     * @return void
+     */
+    public function amount($amount = 1)
+    {
+        $this->amount = $amount;
+
+        return $this;
+    }
+
+    /**
      * Get the changed amount.
      *
      * @return void
@@ -84,7 +96,8 @@ class Exchange
     public function get()
     {
         $response = $this->getCurrency();
-        $this->setBaseCurrency($response->getBaseCurrency());
+
+        $this->setBaseCurrency($response->getRaw()['base']);
 
         return [
             'amount' => $this->amount,
@@ -94,6 +107,17 @@ class Exchange
         ];
     }
 
+    public function getRaw()
+    {
+        return $this->getCurrency()->getRaw();
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param [type] $baseCurrency
+     * @return void
+     */
     protected function setBaseCurrency($baseCurrency)
     {
         $this->base = $baseCurrency;
@@ -107,7 +131,7 @@ class Exchange
      */
     protected function calculateAmount($response)
     {
-        return (1 / $response->getRateFrom()) * $response->getRateTo() * $this->amount;
+        return $response->getRate() * $this->amount;
     }
 
     /**
@@ -117,13 +141,9 @@ class Exchange
      * @param [type] $parameters
      * @return void
      */
-    protected function dynamicFrom($currency, $parameters)
+    protected function dynamicFrom($currency)
     {
         $method = substr($currency, 4);
-
-        if ($parameters[0]) {
-            return $this->from($method, $parameters[0]);
-        }
 
         return $this->from($method);
     }
@@ -135,9 +155,9 @@ class Exchange
      * @param [type] $parameters
      * @return void
      */
-    protected function dynamicTo($currency, $parameters)
+    protected function dynamicTo($currency)
     {
-        $this->to($substr($currency, 2));
+        $this->to(substr($currency, 2));
 
         return $this;
     }
@@ -147,7 +167,7 @@ class Exchange
      *
      * @return void
      */
-    protected function getCurrency()
+    public function getCurrency()
     {
         $driver = config('exchange.default.driver');
         $className = '\\szana8\\Exchange\\Drivers\\' . $driver;

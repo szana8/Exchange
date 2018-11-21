@@ -13,11 +13,6 @@ class ExchangeServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'szana8');
-        // $this->loadViewsFrom(__DIR__.'/../resources/views', 'szana8');
-        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        // $this->loadRoutesFrom(__DIR__.'/routes.php');
-
         // Publishing is only necessary when using the CLI.
         if ($this->app->runningInConsole()) {
             $this->bootForConsole();
@@ -61,22 +56,5 @@ class ExchangeServiceProvider extends ServiceProvider
             __DIR__.'/../config/exchange.php' => config_path('exchange.php'),
         ], 'exchange.config');
 
-        // Publishing the views.
-        /*$this->publishes([
-            __DIR__.'/../resources/views' => base_path('resources/views/vendor/szana8'),
-        ], 'exchange.views');*/
-
-        // Publishing assets.
-        /*$this->publishes([
-            __DIR__.'/../resources/assets' => public_path('vendor/szana8'),
-        ], 'exchange.views');*/
-
-        // Publishing the translation files.
-        /*$this->publishes([
-            __DIR__.'/../resources/lang' => resource_path('lang/vendor/szana8'),
-        ], 'exchange.views');*/
-
-        // Registering package commands.
-        // $this->commands([]);
     }
 }
